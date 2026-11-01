@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New Ticket - Help Desk</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/dashboard.css" rel="stylesheet">
+    <link href="/css/ticket-form.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-headset"></i>
+                <span>HelpDesk</span>
+            </div>
+        </div>
+        
+        <ul class="sidebar-menu">
+            <li class="menu-item">
+                <a href="/dashboard" class="menu-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="/tickets" class="menu-link">
+                    <i class="fas fa-ticket-alt"></i>
+                    <span>Tickets</span>
+                </a>
+            </li>
+            <li class="menu-item active">
+                <a href="/tickets/create" class="menu-link">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>New Ticket</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="/agents" class="menu-link">
+                    <i class="fas fa-users"></i>
+                    <span>Agents</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="/reports" class="menu-link">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Reports</span>
+                </a>
+            </li>
+        </ul>
+        
+        <div class="sidebar-footer">
+            <div class="user-profile">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-info">
+                    <span class="user-name" th:text="${currentUser.name}">User Name</span>
+                    <span class="user-role" th:text="${currentUser.role}">Role</span>
+                </div>
+                <div class="user-actions">
+                    <form th:action="@{/auth/logout}" method="post" style="display: inline;">
+                        <button type="submit" class="logout-btn">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+        <!-- Top Header -->
+        <header class="top-header">
+            <div class="header-left">
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="breadcrumb">
+                    <a href="/tickets">Tickets</a>
+                    <i class="fas fa-chevron-right"></i>
+                    <span>Create New Ticket</span>
+                </div>
+            </div>
+            <div class="header-right">
+                <a href="/tickets" class="btn-secondary">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Tickets
+                </a>
+            </div>
+        </header>
+
+        <!-- Ticket Creation Form -->
+        <div class="form-container">
+            <div class="form-header">
+                <h1>Create New Ticket</h1>
+                <p>Fill out the form below to create a new support ticket</p>
+            </div>
+
+            <form id="ticketForm" class="ticket-form" th:action="@{/api/tickets}" method="post">
+                <div class="form-grid">
+                    <!-- Basic Information -->
+                    <div class="form-section">
+                        <h3>Basic Information</h3>
+                        
+                        <div class="form-group">
+                            <label for="title">Ticket Title *</label>
+                            <input type="text" id="title" name="title" required 
+                                   placeholder="Brief description of the issue">
+                            <small>Keep it concise but descriptive</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="category">Category *</label>
+                            <select id="category" name="category" required>
+                                <option value="">Select a category</option>
+                                <option value="TECHNICAL_ISSUE">Technical Issue</option>
+                                <option value="BILLING">Billing</option>
+                                <option value="ACCOUNT_ACCESS">Account Access</option>
+                                <option value="FEATURE_REQUEST">Feature Request</option>
+                                <option value="BUG_REPORT">Bug Report</option>
+                                <option value="GENERAL_INQUIRY">General Inquiry</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="priority">Priority Level *</label>
+                            <select id="priority" name="priority" required>
+                                <option value="">Select priority</option>
+                                <option value="LOW">Low</option>
+                                <option value="MEDIUM">Medium</option>
+                                <option value="HIGH">High</option>
+                                <option value="CRITICAL">Critical</option>
+                            </select>
+                            <div class="priority-info">
+                                <div class="priority-item" data-priority="LOW">
+                                    <span class="priority-dot low"></span>
+                                    <span>Low: Non-urgent issues, can wait</span>
+                                </div>
+                                <div class="priority-item" data-priority="MEDIUM">
+                                    <span class="priority-dot medium"></span>
+                                    <span>Medium: Standard priority</span>
+                                </div>
+                                <div class="priority-item" data-priority="HIGH">
+                                    <span class="priority-dot high"></span>
+                                    <span>High: Urgent, affects work</span>
+                                </div>
+                                <div class="priority-item" data-priority="CRITICAL">
+                                    <span class="priority-dot critical"></span>
+                                    <span>Critical: System down, immediate attention</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Detailed Description -->
+                    <div class="form-section">
+                        <h3>Detailed Description</h3>
+                        
+                        <div class="form-group">
+                            <label for="description">Description *</label>
+                            <textarea id="description" name="description" rows="6" 
+                                      placeholder="Provide detailed information about the issue, including steps to reproduce, error messages, and expected behavior"></textarea>
+                            <small>Be as detailed as possible to help agents resolve the issue quickly</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="attachments">Attachments</label>
+                            <div class="file-upload">
+                                <input type="file" id="attachments" name="attachments" multiple 
+                                       accept=".jpg,.jpeg,.png,.gif,.pdf,.doc,.docx,.txt">
+                                <div class="upload-area">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <p>Drag and drop files here or click to browse</p>
+                                    <span>Max file size: 10MB</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Scheduling & Assignment -->
+                    <div class="form-section">
+                        <h3>Scheduling & Assignment</h3>
+                        
+                        <div class="form-group">
+                            <label for="dueDate">Due Date</label>
+                            <input type="datetime-local" id="dueDate" name="dueDate">
+                            <small>When should this ticket be resolved by?</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="estimatedHours">Estimated Resolution Time (hours)</label>
+                            <input type="number" id="estimatedHours" name="estimatedHours" 
+                                   min="1" max="168" placeholder="e.g., 4">
+                            <small>How long do you think it will take to resolve?</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="preferredAgent">Preferred Agent (Optional)</label>
+                            <select id="preferredAgent" name="preferredAgent">
+                                <option value="">No preference</option>
+                                <option value="1">John Smith - Technical Specialist</option>
+                                <option value="2">Sarah Johnson - Billing Expert</option>
+                                <option value="3">Mike Davis - General Support</option>
+                            </select>
+                            <small>If you have a preferred agent, select them here</small>
+                        </div>
+                    </div>
+
+                    <!-- Additional Information -->
+                    <div class="form-section">
+                        <h3>Additional Information</h3>
+                        
+                        <div class="form-group">
+                            <label for="environment">Environment</label>
+                            <select id="environment" name="environment">
+                                <option value="">Select environment</option>
+                                <option value="PRODUCTION">Production</option>
+                                <option value="STAGING">Staging</option>
+                                <option value="DEVELOPMENT">Development</option>
+                                <option value="TESTING">Testing</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="browser">Browser (if applicable)</label>
+                            <input type="text" id="browser" name="browser" 
+                                   placeholder="e.g., Chrome 120.0, Firefox 121.0">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="operatingSystem">Operating System (if applicable)</label>
+                            <input type="text" id="operatingSystem" name="operatingSystem" 
+                                   placeholder="e.g., Windows 11, macOS 14.0, Ubuntu 22.04">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="contactPreference">Preferred Contact Method</label>
+                            <select id="contactPreference" name="contactPreference">
+                                <option value="EMAIL">Email</option>
+                                <option value="PHONE">Phone</option>
+                                <option value="SMS">SMS</option>
+                                <option value="IN_APP">In-App Chat</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Form Actions -->
+                <div class="form-actions">
+                    <button type="button" class="btn-secondary" onclick="location.href='/tickets'">
+                        <i class="fas fa-times"></i>
+                        Cancel
+                    </button>
+                    <button type="button" class="btn-secondary" onclick="saveDraft()">
+                        <i class="fas fa-save"></i>
+                        Save Draft
+                    </button>
+                    <button type="submit" class="btn-primary">
+                        <i class="fas fa-paper-plane"></i>
+                        Submit Ticket
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <i class="fas fa-check-circle success-icon"></i>
+                <h3>Ticket Created Successfully!</h3>
+            </div>
+            <div class="modal-body">
+                <p>Your ticket has been submitted and assigned ticket number: <strong id="ticketNumber"></strong></p>
+                <p>You will receive an email confirmation shortly.</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-primary" onclick="location.href='/tickets'">
+                    View All Tickets
+                </button>
+                <button class="btn-secondary" onclick="createAnother()">
+                    Create Another Ticket
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/js/ticket-form.js"></script>
+</body>
+</html>

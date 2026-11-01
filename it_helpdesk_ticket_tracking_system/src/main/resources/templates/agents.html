@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agents - Help Desk</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/dashboard.css" rel="stylesheet">
+    <link href="/css/pages.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-headset"></i>
+                <span>HelpDesk</span>
+            </div>
+        </div>
+
+        <ul class="sidebar-menu">
+            <li class="menu-item">
+                <a href="/dashboard" class="menu-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="/tickets" class="menu-link">
+                    <i class="fas fa-ticket-alt"></i>
+                    <span>Tickets</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="/tickets/create" class="menu-link">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>New Ticket</span>
+                </a>
+            </li>
+            <li class="menu-item active">
+                <a href="/agents" class="menu-link">
+                    <i class="fas fa-users"></i>
+                    <span>Agents</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="/reports" class="menu-link">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Reports</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <div class="user-profile">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-info">
+                    <span class="user-name" th:text="${currentUser != null ? currentUser.name : 'Guest'}">User Name</span>
+                    <span class="user-role" th:text="${currentUser != null ? currentUser.role : ''}">Role</span>
+                </div>
+                <div class="user-actions">
+                    <form th:action="@{/auth/logout}" method="post" style="display: inline;">
+                        <button type="submit" class="logout-btn">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <header class="top-header">
+            <div class="header-left">
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1>Agents</h1>
+            </div>
+            <div class="header-right"
+                 th:if="${currentUser != null and (currentUser.role.name() == 'ADMIN' or currentUser.role.name() == 'MANAGER')}">
+                <button type="button" class="btn-primary-small" id="showAddAgentBtn">
+                    <i class="fas fa-user-plus"></i>
+                    Add Agent
+                </button>
+            </div>
+        </header>
+
+        <div class="page-content">
+
+            <!-- Add Agent form — admin/manager only. Hidden until "Add Agent" is clicked. -->
+            <div class="section-card" id="addAgentForm" style="display:none;"
+                 th:if="${currentUser != null and (currentUser.role.name() == 'ADMIN' or currentUser.role.name() == 'MANAGER')}">
+                <h3>Add a new agent</h3>
+                <div class="agent-form-grid">
+                    <input type="text" id="agentName" placeholder="Full name" required>
+                    <input type="email" id="agentEmail" placeholder="Email address" required>
+                    <input type="password" id="agentPassword" placeholder="Temporary password (min 6 chars)" required minlength="6">
+                    <input type="number" id="agentMaxTickets" placeholder="Max tickets (default 10)" min="1">
+                </div>
+                <div class="agent-form-actions">
+                    <button type="button" class="btn-primary-small" id="submitAddAgentBtn">Create Agent</button>
+                    <button type="button" class="btn-cancel" id="cancelAddAgentBtn">Cancel</button>
+                </div>
+            </div>
+
+            <div th:if="${agents == null or agents.isEmpty()}" class="empty-state">
+                <i class="fas fa-users"></i>
+                <p>No agents yet. Click "Add Agent" above to create one.</p>
+            </div>
+
+            <div th:unless="${agents == null or agents.isEmpty()}" class="agents-grid">
+                <div class="agent-card" th:each="a : ${agents}" th:attr="data-agent-id=${a.id}">
+                    <div class="agent-avatar" th:text="${#strings.substring(a.name, 0, 1)}">A</div>
+                    <div class="agent-info">
+                        <h4 th:text="${a.name}">Agent Name</h4>
+                        <p th:text="${a.email}">email@example.com</p>
+                        <div class="agent-capacity">
+                            <span class="availability-dot" th:classappend="${a.isAvailable ? 'on' : 'off'}"></span>
+                            <span th:text="${a.isAvailable ? 'Available' : 'Unavailable'}">Available</span>
+                            &middot;
+                            <span th:text="${(a.currentTicketCount != null ? a.currentTicketCount : 0) + ' / ' + (a.maxTickets != null ? a.maxTickets : 0) + ' tickets'}">0 / 10 tickets</span>
+                        </div>
+                    </div>
+                    <button type="button" class="btn-remove-agent" title="Remove agent"
+                            th:if="${currentUser != null and (currentUser.role.name() == 'ADMIN' or currentUser.role.name() == 'MANAGER')}">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script src="/js/dashboard.js"></script>
+    <script src="/js/agents.js"></script>
+</body>
+</html>

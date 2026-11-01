@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Login - Help Desk System</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
+    <link href="/css/auth.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <i class="fas fa-headset"></i>
+                <h1>Help Desk System</h1>
+                <p>Sign in to your account</p>
+            </div>
+
+            <!-- Alerts -->
+            <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+            <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+            <div th:if="${param.error}" class="alert alert-error">Invalid email or password</div>
+            <div th:if="${param.logout}" class="alert alert-success">You have been logged out successfully</div>
+            <div th:if="${param.registered}" class="alert alert-success">Registration successful! Please log in.</div>
+
+            <!-- ✅ Form posts to /auth/login -->
+            <form th:action="@{/auth/login}" method="post" class="auth-form login-form">
+                <div class="form-group">
+                    <label for="email">
+                        <i class="fas fa-envelope"></i>
+                        Email Address
+                    </label>
+                    <!-- ✅ Field name must be 'username' for Spring Security -->
+                    <input type="email" id="email" name="username"
+                           th:value="${loginRequest != null ? loginRequest.email : ''}"
+                           required placeholder="Enter your email" />
+                </div>
+
+                <div class="form-group">
+                    <label for="password">
+                        <i class="fas fa-lock"></i>
+                        Password
+                    </label>
+                    <div class="password-input">
+                        <!-- ✅ Field name must be 'password' -->
+                        <input type="password" id="password" name="password"
+                               required placeholder="Enter your password" />
+                        <button type="button" class="toggle-password" onclick="togglePassword()">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="remember-me" />
+                        <span class="checkmark"></span>
+                        Remember me
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Sign In
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                <p>Don't have an account? <a th:href="@{/auth/register}">Sign up</a></p>
+                <a href="#" class="forgot-password">Forgot your password?</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/auth.js"></script>
+</body>
+</html>

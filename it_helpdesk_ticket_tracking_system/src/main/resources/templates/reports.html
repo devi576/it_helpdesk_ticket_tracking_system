@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - Help Desk</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/dashboard.css" rel="stylesheet">
+    <link href="/css/pages.css" rel="stylesheet">
+</head>
+<body>
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <i class="fas fa-headset"></i>
+                <span>HelpDesk</span>
+            </div>
+        </div>
+
+        <ul class="sidebar-menu">
+            <li class="menu-item">
+                <a href="/dashboard" class="menu-link">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="/tickets" class="menu-link">
+                    <i class="fas fa-ticket-alt"></i>
+                    <span>Tickets</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="/tickets/create" class="menu-link">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>New Ticket</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="/agents" class="menu-link">
+                    <i class="fas fa-users"></i>
+                    <span>Agents</span>
+                </a>
+            </li>
+            <li class="menu-item active">
+                <a href="/reports" class="menu-link">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Reports</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <div class="user-profile">
+                <div class="user-avatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div class="user-info">
+                    <span class="user-name" th:text="${currentUser != null ? currentUser.name : 'Guest'}">User Name</span>
+                    <span class="user-role" th:text="${currentUser != null ? currentUser.role : ''}">Role</span>
+                </div>
+                <div class="user-actions">
+                    <form th:action="@{/auth/logout}" method="post" style="display: inline;">
+                        <button type="submit" class="logout-btn">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="main-content">
+        <header class="top-header">
+            <div class="header-left">
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1>Reports</h1>
+            </div>
+        </header>
+
+        <div class="page-content">
+            <div class="metrics-grid">
+                <div class="metric-box">
+                    <div class="value" th:text="${metrics.totalTickets}">0</div>
+                    <div class="label">Total Tickets</div>
+                </div>
+                <div class="metric-box">
+                    <div class="value" th:text="${metrics.openTickets}">0</div>
+                    <div class="label">Open</div>
+                </div>
+                <div class="metric-box">
+                    <div class="value" th:text="${metrics.inProgressTickets}">0</div>
+                    <div class="label">In Progress</div>
+                </div>
+                <div class="metric-box">
+                    <div class="value" th:text="${metrics.resolvedTickets}">0</div>
+                    <div class="label">Resolved</div>
+                </div>
+                <div class="metric-box">
+                    <div class="value" th:text="${metrics.closedTickets}">0</div>
+                    <div class="label">Closed</div>
+                </div>
+                <div class="metric-box">
+                    <div class="value" th:text="${#numbers.formatDecimal(metrics.averageResolutionTime, 1, 1)} + 'h'">0h</div>
+                    <div class="label">Avg. Resolution Time</div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h3>Tickets by priority</h3>
+                <div th:if="${metrics.priorityDistribution == null or metrics.priorityDistribution.isEmpty()}">No data yet.</div>
+                <div class="dist-row" th:each="entry : ${metrics.priorityDistribution}">
+                    <span class="dist-label" th:text="${entry.key}">LOW</span>
+                    <span class="dist-bar-track">
+                        <span class="dist-bar-fill"
+                              th:style="'width: ' + ${metrics.totalTickets > 0 ? (entry.value * 100 / metrics.totalTickets) : 0} + '%'"></span>
+                    </span>
+                    <span class="dist-count" th:text="${entry.value}">0</span>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h3>Tickets by category</h3>
+                <div th:if="${metrics.categoryDistribution == null or metrics.categoryDistribution.isEmpty()}">No data yet.</div>
+                <div class="dist-row" th:each="entry : ${metrics.categoryDistribution}">
+                    <span class="dist-label" th:text="${entry.key}">CATEGORY</span>
+                    <span class="dist-bar-track">
+                        <span class="dist-bar-fill"
+                              th:style="'width: ' + ${metrics.totalTickets > 0 ? (entry.value * 100 / metrics.totalTickets) : 0} + '%'"></span>
+                    </span>
+                    <span class="dist-count" th:text="${entry.value}">0</span>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script src="/js/dashboard.js"></script>
+</body>
+</html>
